@@ -18,7 +18,7 @@ ruleset:
   
   broken_links:
   
-    name: "Check for broken links in README.md"
+    name: Check for broken links in files
     events: [ pull_request ]
     message: >
       @{{ user.login }}, one of the links in the diff did not return an HTTP
@@ -27,3 +27,15 @@ ruleset:
     when:
       - action = "opened" or action = "reopened"
       - count(diff_links.broken) > 0
+
+  short_description:
+    name: Close issues with short descriptions
+    events: [ issues ]
+    when:
+      - length(body) < 50
+      - action = "opened" or action = "reopened"
+    reopen: true
+    message: >
+      @{{ user.login }}, the issue description is too short. Please reopen it
+      once you have amended the description to contain more than the requirement
+      of 50 characters.
