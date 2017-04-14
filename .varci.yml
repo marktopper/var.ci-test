@@ -30,7 +30,7 @@ ruleset:
 
   short_description:
     name: Close issues with short descriptions
-    events: [ issues ]
+    events: [ issues, pull_request ]
     when:
       - length(body) < 50
       - action = "opened" or action = "reopened"
