@@ -46,9 +46,6 @@ ruleset:
     events: [ pull_request ]
     close: true
     message: >
-      @{{ user.login }}, the following links in the diff did not return an HTTP
-      status code of `200`. Please reopen once the links have been fixed. The
-      links are: {{ diff_links.broken }}
       @{{ user.login }}, one of the links in the diff did not return an HTTP
       status code of 200. Please check for broken links. The broken link we
       found is `{{ diff_links.broken.0 }}`. Please reopen once this link have
