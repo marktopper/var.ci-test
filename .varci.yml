@@ -9,7 +9,7 @@ ruleset:
     
   add_bug_label:
   
-    name: Label issues as bug when checked in GitHub template
+    name: "Label issues as bug when checked in GitHub template"
     events: issues
     label: bug
     when:
@@ -18,7 +18,7 @@ ruleset:
 
   welcome_me:
   
-    name: Introduce me when I open a pull request
+    name: "Introduce me when I open a pull request"
     events: [ pull_request ]
     when:
       - action = "opened"
@@ -29,21 +29,37 @@ ruleset:
   
   broken_links:
   
-    name: Check for broken links in files
+    name: "Check for broken links in files"
     events: [ pull_request ]
     close: true
     message: >
+      @{{ user.login }}, the following links in the diff did not return an HTTP
+      status code of `200`. Please reopen once the links have been fixed. The
+      links are: {{ diff_links.broken }}
+    when:
+      - action = "opened" or action = "reopened"
+      - count(diff_links.broken) > 1
+  
+  single_broken_links:
+  
+    name: "Check for broken links in files (Single)"
+    events: [ pull_request ]
+    close: true
+    message: >
+      @{{ user.login }}, the following links in the diff did not return an HTTP
+      status code of `200`. Please reopen once the links have been fixed. The
+      links are: {{ diff_links.broken }}
       @{{ user.login }}, one of the links in the diff did not return an HTTP
       status code of 200. Please check for broken links. The broken link we
       found is `{{ diff_links.broken.0 }}`. Please reopen once this link have
       been fixed.
     when:
       - action = "opened" or action = "reopened"
-      - count(diff_links.broken) > 0
+      - count(diff_links.broken) = 1
 
   short_description:
   
-    name: Close issues with short descriptions
+    name: "Close issues with short descriptions"
     events: [ issues, pull_request ]
     when:
       - length(body) < 50
@@ -57,7 +73,7 @@ ruleset:
   
   missing_version_number:
   
-    name: Close bugs with missing version number
+    name: "Close bugs with missing version number"
     events: issues
     close: true
     label: invalid
