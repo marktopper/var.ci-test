@@ -1,4 +1,14 @@
 ruleset:
+
+  reopen:
+    name: "Allow issue/PR creator to reopen invalid issues"
+    events: [ issue_comment ]
+    when:
+      - comment.user.login in [issue.user.login, pull_request.user.login]
+      - comment.body contains '/fixed'
+      - filter(labels, "name") has "invalid"
+    label: -invalid
+    reopen: true
   
   remove_invalid_label:
   
@@ -34,8 +44,9 @@ ruleset:
     close: true
     message: >
       @{{ user.login }}, the following links in the diff did not return an HTTP
-      status code of `200`. Please reopen once the links have been fixed. The
-      links are: {{ diff_links.broken }}
+      status code of `200`. Please reply with the text `/fixed` once the links
+      have been fixed in order to reopen this. The links are:
+      {{ diff_links.broken }}
     when:
       - action = "opened" or action = "reopened"
       - count(diff_links.broken) > 1
@@ -48,8 +59,8 @@ ruleset:
     message: >
       @{{ user.login }}, one of the links in the diff did not return an HTTP
       status code of 200. Please check for broken links. The broken link we
-      found is `{{ diff_links.broken.0 }}`. Please reopen once this link have
-      been fixed.
+      found is `{{ diff_links.broken.0 }}`. Please add a comment with the text
+      `/fixed` once this link have been fixed in order to reopen this.
     when:
       - action = "opened" or action = "reopened"
       - count(diff_links.broken) = 1
@@ -64,9 +75,9 @@ ruleset:
     close: true
     label: invalid
     message: >
-      @{{ user.login }}, the issue description is too short. Please reopen it
-      once you have amended the description to contain more than the requirement
-      of 50 characters.
+      @{{ user.login }}, the issue description is too short. Please add a comment
+      with the text `/fixed` once you have amended the description to contain
+      more than the requirement of 50 characters.
   
   missing_version_number:
   
@@ -75,8 +86,8 @@ ruleset:
     close: true
     label: invalid
     message: >
-      @{{ user.login }}, please re-open once you have added the version you are
-      using per our contributing guidelines.
+      @{{ user.login }}, please add a comment with the text `/fixed` once
+      you have added the version you are using per our contributing guidelines.
     when:
       - action = "labelled"
       - filter(labels, "name") has "bug"
@@ -106,4 +117,3 @@ ruleset:
       - action = "opened"
       - count(filter(files, "[name=/\.css$/]")) > 0
       - not(body matches "/!\[image\]\(.*?\)/")
-      
